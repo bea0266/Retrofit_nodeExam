@@ -2,14 +2,14 @@ const express = require('express');
 const app = express();
 const mysql = require('mysql');
 const connection = mysql.createConnection({
-    host: "hostIP",
+    host: "127.0.0.1",
     port: "3307",
     user: "root",
     password: "password",
-    database: "userInfo"
+    database: "test"
 })
 
-connection.connect();
+//connection.connect();
 
 
 
@@ -21,8 +21,8 @@ app.get('/', (req, res) => {
 
 app.get('/posts', (req, res) => {
 
-    connection.query(`SELECT * FROM user WHERE userId LIKE '%56'`, function(error, result, fields) {
-        connection.end();
+    connection.query(`SELECT * FROM userinfo`, function(error, result, fields) {
+        //connection.end();
         if (error) {
             console.log(error);
             res.send(error);
@@ -36,7 +36,7 @@ app.get("/send", (req, res) => {
     var userId = req.query.userId;
     var userPw = req.query.userPw;
 
-    connection.query(`INSERT INTO user(userId, userPw) VALUES('${userId}', '${userPw}')`,
+    connection.query(`INSERT INTO userinfo(userId, userPw) VALUES('${userId}', '${userPw}')`,
         function(error, result) {
 
             if (error) {

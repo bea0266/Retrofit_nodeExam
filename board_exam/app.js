@@ -5,7 +5,7 @@ const mysql = require('mysql');
 
 const connection = mysql.createConnection({
 
-    host: "localhost",
+    host: "127.0.0.1",
     port: "3307",
     user: "root",
     password: "password",
@@ -13,9 +13,7 @@ const connection = mysql.createConnection({
 
 })
 
-connection.connect(() => {
-    console.log("mysql connected!!");
-});
+//connection.connect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,13 +28,39 @@ app.get('/', (req, res) => {
 
 });
 
+app.put('/addHits', (req,res) => {
+
+    let position = req.body.position;
+    position++;
+    
+    let hits = req.body.hits;
+    
+    let sql = `UPDATE post SET hits=${hits} WHERE postNum=${position} `
+    connection.query(sql,function(error, result){
+
+        if (error) {
+
+            console.log(error);
+            res.send(error);
+            throw error;
+
+        }
+        console.log(`id: ${position}, hits: ${hits}`);
+        res.send(result);
+
+    });
+    
+
+});
+
 app.post('/inserts', (req, res) => {
-    var title = req.body.title;
-    var description = req.body.description;
-    var hits = req.body.hits;
-    var write_date = req.body.write_date;
-    var writer = req.body.writer;
+    let title = req.body.title;
+    let description = req.body.description;
+    let hits = req.body.hits;
+    let write_date = req.body.write_date;
+    let writer = req.body.writer;
     console.log(`title: ${ title }, writer: ${ writer }, hits: ${ hits }, description: ${ description }, write_date: ${ write_date }`);
+    
 
 
     connection.query(`INSERT INTO post(title, writer, hits, description, write_date) VALUES('${title}', '${writer}', ${ hits }, '${description}', '${write_date}')`,
