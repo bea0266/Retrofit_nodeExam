@@ -5,7 +5,7 @@ const mysql = require('mysql');
 
 const connection = mysql.createConnection({
 
-    host: "127.0.0.1",
+    host: "192.168.35.4",
     port: "3307",
     user: "root",
     password: "password",
@@ -28,15 +28,16 @@ app.get('/', (req, res) => {
 
 });
 
-app.put('/addHits', (req,res) => {
+
+app.put('/addHits', (req, res) => {
 
     let position = req.body.position;
     position++;
-    
+
     let hits = req.body.hits;
-    
+
     let sql = `UPDATE post SET hits=${hits} WHERE postNum=${position} `
-    connection.query(sql,function(error, result){
+    connection.query(sql, function(error, result) {
 
         if (error) {
 
@@ -49,7 +50,7 @@ app.put('/addHits', (req,res) => {
         res.send(result);
 
     });
-    
+
 
 });
 
@@ -59,8 +60,6 @@ app.post('/inserts', (req, res) => {
     let hits = req.body.hits;
     let write_date = req.body.write_date;
     let writer = req.body.writer;
-    console.log(`title: ${ title }, writer: ${ writer }, hits: ${ hits }, description: ${ description }, write_date: ${ write_date }`);
-    
 
 
     connection.query(`INSERT INTO post(title, writer, hits, description, write_date) VALUES('${title}', '${writer}', ${ hits }, '${description}', '${write_date}')`,
