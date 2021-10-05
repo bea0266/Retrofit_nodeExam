@@ -5,10 +5,10 @@ const mysql = require('mysql');
 
 const connection = mysql.createConnection({
 
-    host: "127.0.0.1",
+    host: "172.16.61.106",
     port: "3307",
     user: "root",
-    password: "password",
+    password: "111111",
     database: "board"
 
 })
@@ -27,6 +27,26 @@ app.get('/', (req, res) => {
     res.send(`게시판 저장 예제`);
 
 });
+app.put ('/update/:position', (req ,res) => {
+    let position = req.params.position;
+    let title = req.body.title;
+    let writer = req.body.writer;
+    let description = req.body.description;
+    let write_date = req.body.write_date;
+
+    let sql = `UPDATE post SET title='${title}', writer='${writer}', description='${description}', write_date='${write_date}' WHERE postNum=${position}`;
+
+    connection.query(sql, function(error, result){
+        if(error) {
+            console.log(error);
+            res.send(error);
+            throw error;
+        }
+
+        console.log(`update post id = ${position}, title: ${ title }, writer: ${ writer },  description: ${ description }, write_date: ${ write_date }`);
+        res.send(result);
+    });
+});
 
 app.put('/addHits', (req,res) => {
 
@@ -35,7 +55,7 @@ app.put('/addHits', (req,res) => {
     
     let hits = req.body.hits;
     
-    let sql = `UPDATE post SET hits=${hits} WHERE postNum=${position} `
+    let sql = `UPDATE post SET hits=${hits} WHERE postNum=${position} `;
     connection.query(sql,function(error, result){
 
         if (error) {
@@ -53,16 +73,14 @@ app.put('/addHits', (req,res) => {
 
 });
 
+
 app.post('/inserts', (req, res) => {
     let title = req.body.title;
     let description = req.body.description;
     let hits = req.body.hits;
     let write_date = req.body.write_date;
     let writer = req.body.writer;
-    console.log(`title: ${ title }, writer: ${ writer }, hits: ${ hits }, description: ${ description }, write_date: ${ write_date }`);
     
-
-
     connection.query(`INSERT INTO post(title, writer, hits, description, write_date) VALUES('${title}', '${writer}', ${ hits }, '${description}', '${write_date}')`,
         function(error, result) {
 
@@ -76,6 +94,24 @@ app.post('/inserts', (req, res) => {
             res.send(result);
             console.log(`title: ${ title }, writer: ${ writer }, hits: ${ hits }, description: ${ description }, write_date: ${ write_date }`);
         });
+});
+
+app.delete('/delete/:position', (req, res) => {
+    let position = req.body.position;
+
+    let sql = `DELETE FROM post WHERE postNum=${position}`;
+    
+    connection.query(sql, function(error, result){
+        
+        if(error){
+            console.log(error);
+            res.send(error);
+            throw error;
+        }
+        res.send(result);   
+        console.log(`id : ${position} 이 삭제되었습니다.`);
+    });
+
 });
 
 
