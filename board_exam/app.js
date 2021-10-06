@@ -6,13 +6,14 @@ const mysql = require('mysql');
 const connection = mysql.createConnection({
 
 
-    host: "localhost",
+    host: "127.0.0.1",
     port: "3307",
     user: "root",
-    password: "password",
-    database: "board"
+    password: "111111",
+    database: "board",
+    multipleStatements: true
 
-})
+});
 
 //connection.connect();
 
@@ -102,10 +103,15 @@ app.post('/inserts', (req, res) => {
 
 app.delete('/delete/:position', (req, res) => {
     let position = req.params.position;
+    let count = req.body.count;
 
-    let sql = `DELETE FROM post WHERE postNum=${position}`;
+    let sql1 = `DELETE FROM post WHERE postNum=${position};`;
+    let sql2 = `set @cnt=0;`;
+    let sql3 = `update post set post.postNum=@cnt:=@cnt+1;`;
+    let sql4 = `alter table post auto_increment=${count};` ;
 
-    connection.query(sql, function(error, result) {
+
+    connection.query(sql1+sql2+sql3+sql4, function(error, result) {
 
         if (error) {
             console.log(error);
@@ -114,6 +120,7 @@ app.delete('/delete/:position', (req, res) => {
         }
         res.send(result);
         console.log(`id : ${position} 이 삭제되었습니다.`);
+        
     });
 
 });
