@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
     res.send(`게시판 저장 예제`);
 
 });
-app.put ('/update/:position', (req ,res) => {
+app.put('/update/:position', (req, res) => {
     let position = req.params.position;
     let title = req.body.title;
     let writer = req.body.writer;
@@ -37,8 +37,8 @@ app.put ('/update/:position', (req ,res) => {
 
     let sql = `UPDATE post SET title='${title}', writer='${writer}', description='${description}', write_date='${write_date}' WHERE postNum=${position}`;
 
-    connection.query(sql, function(error, result){
-        if(error) {
+    connection.query(sql, function(error, result) {
+        if (error) {
             console.log(error);
             res.send(error);
             throw error;
@@ -54,6 +54,7 @@ app.put('/addHits', (req, res) => {
 
     let position = req.body.position;
     position++;
+
 
     let hits = req.body.hits;
 
@@ -100,18 +101,18 @@ app.post('/inserts', (req, res) => {
 });
 
 app.delete('/delete/:position', (req, res) => {
-    let position = req.body.position;
+    let position = req.params.position;
 
     let sql = `DELETE FROM post WHERE postNum=${position}`;
-    
-    connection.query(sql, function(error, result){
-        
-        if(error){
+
+    connection.query(sql, function(error, result) {
+
+        if (error) {
             console.log(error);
             res.send(error);
             throw error;
         }
-        res.send(result);   
+        res.send(result);
         console.log(`id : ${position} 이 삭제되었습니다.`);
     });
 
