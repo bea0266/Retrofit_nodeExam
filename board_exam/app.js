@@ -1,4 +1,5 @@
 const express = require('express');
+const { plugin } = require('mongoose');
 const app = express();
 const mysql = require('mysql');
 
@@ -6,16 +7,16 @@ const mysql = require('mysql');
 const connection = mysql.createConnection({
 
 
-    host: "127.0.0.1",
+    host: "localhost",
     port: "3307",
     user: "root",
-    password: "111111",
+    password: "password",
     database: "board",
-    multipleStatements: true
+    multipleStatements: true,
+    dateStrings: 'date'
 
 });
 
-//connection.connect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,9 +27,33 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
 
-    res.send(`게시판 저장 예제`);
+    let sql = `select * from post`
+    connection.query(sql, function(error, rows, fields) {
+        if (error) {
+            console.log(error);
+            res.send(error);
+            throw error;
+        }
+
+        let rowsJson = JSON.stringify(rows, ["title", "writer", "description", "hits", "write_date"]);
+        console.log(`rowsJson:`, rowsJson);
+
+        let rowsParse = JSON.parse(rowsJson);
+        console.log(`rowsparse:`, rowsParse);
+
+
+
+        res.json(rowsParse);
+
+
+    })
+
+
+
 
 });
+
+
 app.put('/update/:position', (req, res) => {
     let position = req.params.position;
     let title = req.body.title;
@@ -36,7 +61,7 @@ app.put('/update/:position', (req, res) => {
     let description = req.body.description;
     let write_date = req.body.write_date;
 
-    let sql = `UPDATE post SET title='${title}', writer='${writer}', description='${description}', write_date='${write_date}' WHERE postNum=${position}`;
+    let sql = `UPDATE post SET title = '${title}', writer = '${writer}', description = '${description}', write_date = '${write_date}'WHERE postNum = ${ position }`;
 
     connection.query(sql, function(error, result) {
         if (error) {
@@ -45,7 +70,7 @@ app.put('/update/:position', (req, res) => {
             throw error;
         }
 
-        console.log(`update post id = ${position}, title: ${ title }, writer: ${ writer },  description: ${ description }, write_date: ${ write_date }`);
+        console.log(`update post id = ${ position }, title: ${ title }, writer: ${ writer }, description: ${ description }, write_date: ${ write_date }`);
         res.send(result);
     });
 });
@@ -59,7 +84,7 @@ app.put('/addHits', (req, res) => {
 
     let hits = req.body.hits;
 
-    let sql = `UPDATE post SET hits=${hits} WHERE postNum=${position} `
+    let sql = `UPDATE post SET hits = ${ hits } WHERE postNum = ${ position }`
     connection.query(sql, function(error, result) {
 
 
@@ -70,7 +95,7 @@ app.put('/addHits', (req, res) => {
             throw error;
 
         }
-        console.log(`id: ${position}, hits: ${hits}`);
+        console.log(`id: ${ position }, hits: ${ hits }`);
         res.send(result);
 
     });
@@ -105,13 +130,13 @@ app.delete('/delete/:position', (req, res) => {
     let position = req.params.position;
     let count = req.body.count;
 
-    let sql1 = `DELETE FROM post WHERE postNum=${position};`;
-    let sql2 = `set @cnt=0;`;
+    let sql1 = `DELETE FROM post WHERE postNum = ${position};`;
+    let sql2 = `set @cnt = 0;`;
     let sql3 = `update post set post.postNum=@cnt:=@cnt+1;`;
-    let sql4 = `alter table post auto_increment=${count};` ;
+    let sql4 = `alter table post auto_increment=${count};`;
 
 
-    connection.query(sql1+sql2+sql3+sql4, function(error, result) {
+    connection.query(sql1 + sql2 + sql3 + sql4, function(error, result) {
 
         if (error) {
             console.log(error);
@@ -119,8 +144,8 @@ app.delete('/delete/:position', (req, res) => {
             throw error;
         }
         res.send(result);
-        console.log(`id : ${position} 이 삭제되었습니다.`);
-        
+        console.log(`id: ${ position }이 삭제되었습니다.`);
+
     });
 
 });
